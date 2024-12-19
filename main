@@ -1,0 +1,113 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+vector <int> size_day_month = {31, 28, 31, 30, 31, 30, 31,
+                               31, 30, 31, 30, 31, 30, 31};
+
+int fun_in_month() {
+    cout << "Здравствуйте! ";
+    int input_month;
+    do {
+        cout << "Введите, пожалуйста, номер месяца: ";
+        cin >> input_month;
+    } while (input_month > 12 || input_month < 1);
+    return input_month;
+}
+
+int fun_in_year() {
+    cout << endl;
+    int input_year;
+    do {
+        cout << "Введите, пожалуйста, год от 1919 до 2069: ";
+        cin >> input_year;
+    } while (input_year > 2069 || input_year < 1919);
+    return input_year;
+}
+
+int process_first_day_step(int year, int first) {
+    if (year % 4 == 0 || year % 400 == 0 && year % 100 != 0) {
+        first += 2;
+    } else {
+        first++;
+    }
+    if (first == 8) first = 1;
+    if (first == 9) first = 2;
+    return first;
+}
+
+int first_day(int mon, int ye) {
+    int first = 3;
+    
+    for (int i = 1920; i <= ye; i++) {
+        first = process_first_day_step(i, first);
+    }
+    
+    if (ye % 4 == 0 || ye % 400 == 0 && ye % 100 != 0) {
+        size_day_month[1] = 29;
+        first--;
+        if (first == 0) first = 7;
+    }
+    
+    mon--;
+    
+    for (int i = 0; i < mon; i++) {
+        for (int j = 0; j < size_day_month[i]; j++) {
+            first++;
+            if (first == 8) first = 1;
+            if (first == 9) first = 2;
+        }
+    }
+    
+    return --first;
+}
+
+void fun_out(int mon, int ye, int fir) {
+    const vector <string> month = {"ЯНВАРЬ", "ФЕВРАЛЬ", "МАРТ", "АПРЕЛЬ", "МАЙ", "ИЮНЬ",
+                                   "ИЮЛЬ", "АВГУСТ", "СЕНТЯБРЬ", "ОКТЯБРЬ", "НОЯБРЬ", "ДЕКАБРЬ"};
+    
+    cout << endl << month[mon - 1] << " " << ye << endl;
+    cout << "  ПН" << "  ВТ" << "  СР" << "  ЧТ" << "  ПТ" << "  СБ" << "  ВС" << endl;
+    
+    int num_day_in_week = 7;
+    int num_week = 6;
+    
+    int num_day[num_week][num_day_in_week];
+    
+    int counter = 1;
+    
+    for (int i = 0; i < num_week; i++) for (int j = 0; j < num_day_in_week; j++) num_day[i][j] = 0;
+    
+    for (int i = 0; i < num_week; i++) {
+        for (int j = 0; j < num_day_in_week; j++) {
+            if (counter > size_day_month[mon - 1]) {
+                num_day[i][j] = 0;
+                continue;
+            }
+            if (i == 0) {
+                if (j < fir) {
+                    num_day[i][j] = 0;
+                    continue;
+                }
+            }
+            num_day[i][j] = counter;
+            counter++;
+        }
+    }
+    
+    for (int i = 0; i < num_week; i++) {
+        for (int j = 0; j < num_day_in_week; j++) {
+            if (num_day[i][j] == 0) cout << setw(4) << " ";
+            else cout << setw(4) << num_day[i][j];
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    int mon = fun_in_month();
+    int ye = fun_in_year();
+    int fir = first_day(mon, ye);
+    fun_out(mon, ye, fir);
+}
